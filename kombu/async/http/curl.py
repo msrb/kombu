@@ -10,8 +10,12 @@ from kombu.async.hub import READ, WRITE, get_event_loop
 from kombu.exceptions import HttpError
 from kombu.five import bytes_if_py2, items
 from kombu.utils.encoding import bytes_to_str
+from kombu.log import get_logger
 
 from .base import BaseClient
+
+
+logger = get_logger(__name__)
 
 try:
     import pycurl  # noqa
@@ -129,7 +133,7 @@ class CurlClient(BaseClient):
             for curl in succeeded:
                 self._process(curl)
             for curl, errno, reason in failed:
-                self._process(curl, errno, reason)
+                logger.error('Failed request: %r', HttpError(errno, reason))
             if q == 0:
                 break
         self._process_queue()
